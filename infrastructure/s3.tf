@@ -1,6 +1,7 @@
 # S3 Bucket for Union AI
 resource "aws_s3_bucket" "union_tenant" {
   bucket = "unionai-tenant-production-${var.cluster_name}"
+  force_destroy = true
 
   tags = {
     Name        = "unionai-tenant-production-${var.cluster_name}"
