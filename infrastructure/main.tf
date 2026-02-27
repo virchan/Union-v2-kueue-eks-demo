@@ -117,3 +117,49 @@ resource "aws_iam_policy" "node_additional" {
   })
 }
 
+# ECR repo for ImageBuilder
+resource "aws_ecr_repository" "image_builder_repo" {
+  name                 = "${var.cluster_name}-image-builder"
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+# IAM policy for ECR push/pull
+resource "aws_iam_policy" "image_builder_ecr_access" {
+  name        = "${var.cluster_name}-image-builder-ecr-access"
+  description = "Allow EKS nodes to push/pull images for ImageBuilder"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      # Required for all ECR interactions
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = "*"
+      },
+      # Repo-specific push/pull permissions
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:BatchGetImage",
+          "ecr:CompleteLayerUpload",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:InitiateLayerUpload",
+          "ecr:PutImage",
+          "ecr:UploadLayerPart",
+          "ecr:DescribeRepositories",
+          "ecr:ListImages",
+          "ecr:DescribeImages",
+          "ecr:BatchDeleteImage",
+          "ecr:ListTagsForResource"
+        ]
+        Resource = aws_ecr_repository.image_builder_repo.arn
+      }
+    ]
+  })
+}
