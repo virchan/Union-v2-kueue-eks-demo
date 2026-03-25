@@ -15,5 +15,5 @@ output "helm_release_status" {
 
 output "unionai_host" {
   description = "Union AI host URL"
-  value       = "${data.terraform_remote_state.infrastructure.outputs.cluster_name}.hosted.unionai.cloud"
+  value       = "${var.org_name}.cloud-staging.union.ai"
 }
