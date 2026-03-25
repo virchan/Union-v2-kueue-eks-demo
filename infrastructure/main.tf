@@ -73,27 +73,14 @@ module "eks" {
       max_size     = var.max_size
       desired_size = var.desired_size
 
-      block_device_mappings = {
-        xvda = {
-          device_name = "/dev/xvda"
-          ebs = {
-            volume_size           = 50
-            volume_type           = "gp3"
-            delete_on_termination = true
-          }
-        }
-      }
-
       iam_role_additional_policies = {
         additional = aws_iam_policy.node_additional.arn
-        ecr_access = aws_iam_policy.image_builder_ecr_access.arn
-
       }
     }
   }
 
   tags = {
-    Environment = "staging"
+    Environment = "production"
     Terraform   = "true"
   }
 }

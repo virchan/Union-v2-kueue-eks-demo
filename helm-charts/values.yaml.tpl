@@ -1,4 +1,4 @@
-host: ${org_name}.cloud-staging.union.ai
+host: ${cluster_name}.hosted.unionai.cloud
 clusterName: ${cluster_name}
 orgName: ${org_name}
 provider: aws
