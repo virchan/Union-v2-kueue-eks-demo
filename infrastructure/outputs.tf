@@ -59,3 +59,8 @@ output "unionai_host" {
   description = "Union AI host URL"
   value       = "${var.cluster_name}.hosted.unionai.cloud"
 }
+
+output "cloudwatch_log_group" {
+  value       = aws_cloudwatch_log_group.flyte_logs.name
+  description = "CloudWatch log group for Flyte workloads"
+}
