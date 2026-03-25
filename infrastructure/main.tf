@@ -86,8 +86,16 @@ module "eks" {
 
       iam_role_additional_policies = {
         additional = aws_iam_policy.node_additional.arn
+        cloudwatch = aws_iam_policy.node_cloudwatch.arn
         ecr_access = aws_iam_policy.image_builder_ecr_access.arn
+
       }
+    }
+  }
+
+  cluster_addons = {
+    amazon-cloudwatch-observability = {
+      most_recent = true
     }
   }
 
@@ -171,6 +179,42 @@ resource "aws_iam_policy" "image_builder_ecr_access" {
           "ecr:ListTagsForResource"
         ]
         Resource = aws_ecr_repository.image_builder_repo.arn
+      }
+    ]
+  })
+}
+
+# AWS CloudWatch for Kubernetes logging
+resource "aws_cloudwatch_log_group" "flyte_logs" {
+  name              = "/flyte/${var.cluster_name}"
+  retention_in_days = 30
+  skip_destroy      = false
+
+  tags = {
+    Environment = "staging"
+    Terraform   = "true"
+  }
+}
+
+# IAM policy for CloudWatch logging
+resource "aws_iam_policy" "node_cloudwatch" {
+  name        = "${var.cluster_name}-node-cloudwatch-policy"
+  description = "Allow EKS nodes to ship logs and metrics to CloudWatch"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "cloudwatch:PutMetricData",
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogStreams",
+          "logs:DescribeLogGroups"
+        ]
+        Resource = "*"
       }
     ]
   })
